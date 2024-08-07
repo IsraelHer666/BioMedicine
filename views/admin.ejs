@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrador - Inventario de Medicamentos</title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/modaleliminacion.css">
+  <link rel="stylesheet" href="/css/modalactualizacion.css"> <!-- Asegúrate de incluir los estilos del modal de actualización -->
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/admin">Administrador</a></li>
+    </ul>
+  </nav>
+
+  <section id="admin">
+    <h1>Inventario de Medicamentos</h1>
+    <table id="medications-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Fecha de Caducidad</th>
+          <th>Precio</th>
+          <th>Lote</th>
+          <th>Stock Disponible</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% medications.forEach(medication => { %>
+          <tr>
+            <form class="update-medication-form" action="/api/medications/<%= medication.id %>?_method=PUT" method="POST">
+              <input type="hidden" name="_method" value="PUT">
+              <td><%= medication.id %></td>
+              <td><input type="text" name="name" value="<%= medication.name %>" required></td>
+              <td><input type="text" name="description" value="<%= medication.description %>" required></td>
+              <td><input type="date" name="expirationDate" value="<%= new Date(medication.expirationDate).toISOString().split('T')[0] %>" required></td>
+              <td><input type="number" name="price" step="0.01" value="<%= medication.price %>" required></td>
+              <td><input type="text" name="lot" value="<%= medication.lot %>" required></td>
+              <td><input type="number" name="stock" value="<%= medication.stock %>" required></td>
+              <td>
+                <button type="submit" class="update-button">Actualizar</button>
+                <button class="delete-button" data-id="<%= medication.id %>">Eliminar</button>
+              </td>
+            </form>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <h2>Agregar Nuevo Medicamento</h2>
+    <form id="add-medication-form" action="/api/medications" method="POST">
+      <label for="name">Nombre:</label>
+      <input type="text" id="name" name="name" required>
+      
+      <label for="description">Descripción:</label>
+      <input type="text" id="description" name="description" required>
+      
+      <label for="expirationDate">Fecha de Caducidad:</label>
+      <input type="date" id="expirationDate" name="expirationDate" required>
+      
+      <label for="price">Precio:</label>
+      <input type="number" id="price" name="price" step="0.01" required>
+      
+      <label for="lot">Lote:</label>
+      <input type="text" id="lot" name="lot" required>
+      
+      <label for="stock">Stock:</label>
+      <input type="number" id="stock" name="stock" required>
+      
+      <button type="submit">Agregar Medicamento</button>
+    </form>
+  </section>
+  
+  <!-- Modal de Confirmación de Eliminación -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Confirmar Eliminación</h2>
+      <p>¿Estás seguro de que deseas eliminar este medicamento?</p>
+      <button id="confirmDeleteButton">Eliminar</button>
+      <button id="cancelDeleteButton">Cancelar</button>
+    </div>
+  </div>
+  
+  <!-- Modal de Confirmación de Actualización -->
+  <div id="updateModal" class="modal">
+    <div class="modal-content">
+      <span class="close-update">&times;</span>
+      <h2>Actualización Exitosa</h2>
+      <p>El medicamento ha sido actualizado correctamente.</p>
+      <button id="confirmUpdateButton">Aceptar</button>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

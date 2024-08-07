@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial de Medicamentos</title>
+  <link rel="stylesheet" href="/css/history.css">
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/admin">Administrador</a></li>
+      <li><a href="/history">Historial</a></li>
+    </ul>
+  </nav>
+
+  <section id="history">
+    <h1>Historial de Medicamentos</h1>
+    <table id="history-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Fecha de Caducidad</th>
+          <th>Precio</th>
+          <th>Lote</th>
+          <th>Stock Antes</th>
+          <th>Stock Después</th>
+          <th>Folio</th>
+          <th>Detalles de Venta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% medicationhistories.forEach(history => { %>
+          <tr>
+            <td><%= history.id %></td>
+            <td><%= history.name %></td>
+            <td><%= history.description %></td>
+            <td><%= new Date(history.expirationDate).toISOString().split('T')[0] %></td>
+            <td><%= history.price %></td>
+            <td><%= history.lot %></td>
+            <td><%= history.stockBefore %></td>
+            <td><%= history.stockAfter %></td>
+            <td><%= history.folio %></td>
+            <td>
+              <ul>
+                <% history.saleDetails.forEach(detail => { %>
+                  <li>Folio: <%= detail.folio %>, Cantidad: <%= detail.quantity %>, Fecha: <%= new Date(detail.createdAt).toISOString().split('T')[0] %></li>
+                <% }) %>
+              </ul>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</body>
+</html>

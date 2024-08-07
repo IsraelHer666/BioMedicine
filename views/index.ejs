@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Sistema de Control de Stock</title>
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <header>
+        <div class="Title">
+            <h1>BioMedicine</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#inventario">Inventario</a></li>
+                <li><a href="#reportes">Reportes</a></li>
+                <li><a href="#productos">Productos</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="inicio">
+        <h1>Resumen de Ventas Diarias - <span id="current-date"></span></h1>
+        <div class="summary-container">
+            <div class="summary-card">
+                <h2>Total de Ventas</h2>
+                <p id="total-sales">$0.00</p>
+            </div>
+            <div class="summary-card">
+                <h2>Número de Transacciones</h2>
+                <p id="transactions">0</p>
+            </div>
+            <div class="summary-card">
+                <h2>Productos Vendidos</h2>
+                <p id="products-sold">0</p>
+            </div>
+            <div class="summary-card">
+                <h2>Promedio por Transacción</h2>
+                <p id="avg-per-transaction">$0.00</p>
+            </div>
+        </div>  |
+    </section>
+
+    <script src="/js/hour.js"></script>
+</body>
+</html>

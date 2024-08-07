@@ -1,0 +1,76 @@
+/* Estilos básicos para la navegación */
+nav {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+  }
+  
+  nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  nav ul li {
+    display: inline;
+    margin-right: 20px;
+  }
+  
+  nav ul li a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  nav ul li a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Estilos básicos para la sección de historial */
+  #history {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+  }
+  
+  #history h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Estilos para la tabla de historial */
+  #history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+  }
+  
+  #history-table th, #history-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+  }
+  
+  #history-table th {
+    background-color: #f4f4f4;
+  }
+  
+  #history-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  #history-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Estilos para la lista de detalles de venta */
+  #history-table td ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  #history-table td ul li {
+    margin-bottom: 5px;
+  }
+  
