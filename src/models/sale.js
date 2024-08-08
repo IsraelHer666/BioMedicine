@@ -8,7 +8,7 @@ Sale.init({
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: false
   },
   medicationId: {
     type: DataTypes.INTEGER,

@@ -4,6 +4,7 @@ const cors = require('cors');
 const methodOverride = require('method-override');
 const path = require('path');
 const getNextAvailableId = require('./src/utils/getNextAvailableId');
+const getNextAvailableSaleId = require('./src/utils/getNextAvailableSaleId');
 const { v4: uuidv4 } = require('uuid');
 const sequelize = require('./src/config/database');
 const { Medication, Sale } = require('./src/models/associations'); // Importar desde associations.js
@@ -89,17 +90,18 @@ app.get('/register-sale', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
+//Registrar venta
 app.post('/api/register-sale', async (req, res) => {
   const { medicationId, quantity } = req.body;
   try {
     const medication = await Medication.findByPk(medicationId);
     if (medication) {
       if (medication.stock >= quantity) {
-        // Crea la venta
-        const sale = await Sale.create({ medicationId, quantity });
+        // Obtener el siguiente ID disponible para la venta
+        const nextSaleId = await getNextAvailableSaleId();
+        const sale = await Sale.create({ id: nextSaleId, medicationId, quantity });
         
-        // Actualiza el stock
+        // Actualizar el stock
         medication.stock -= quantity;
         await medication.save();
 
@@ -123,7 +125,54 @@ app.post('/api/register-sale', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// Eliminar venta
+app.delete('/api/sales/:id', async (req, res) => {
+  try {
+    const saleId = req.params.id;
+    console.log(`Attempting to delete sale with ID: ${saleId}`);
 
+    const sale = await Sale.findByPk(saleId);
+    if (sale) {
+      console.log(`Sale found: ${JSON.stringify(sale)}`);
+
+      // Actualizar stock del medicamento
+      const medication = await Medication.findByPk(sale.medicationId);
+      if (medication) {
+        console.log(`Medication found: ${JSON.stringify(medication)}`);
+        medication.stock += sale.quantity;
+        await medication.save();
+        console.log(`Updated medication stock: ${medication.stock}`);
+      }
+
+      await sale.destroy();
+      console.log(`Sale with ID: ${saleId} deleted`);
+
+      // Reajustar los IDs de las ventas restantes
+      const remainingSales = await Sale.findAll({
+        order: [['id', 'ASC']],
+      });
+      console.log(`Remaining sales: ${JSON.stringify(remainingSales)}`);
+      
+      for (let i = 0; i < remainingSales.length; i++) {
+        remainingSales[i].id = i + 1;
+        await remainingSales[i].save();
+        console.log(`Updated sale ID to: ${remainingSales[i].id}`);
+      }
+
+      // Enviar los datos actualizados del medicamento
+      res.status(200).json({
+        message: 'Venta eliminada exitosamente',
+        medication: await medication.get()
+      });
+    } else {
+      res.status(404).json({ message: 'Venta no encontrada' });
+    }
+  } catch (err) {
+    console.error('Error al eliminar venta:', err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+//Añadir medicamentos
 app.post('/api/medications', async (req, res) => {
   const { name, description, expirationDate, price, lot, stock } = req.body;
   

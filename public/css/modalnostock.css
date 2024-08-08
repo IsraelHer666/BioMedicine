@@ -1,0 +1,40 @@
+/* Estilos para el modal de error */
+.modal {
+  display: none; /* Oculto por defecto */
+  position: fixed; /* Fijado en pantalla */
+  z-index: 1; /* Colocado por encima del contenido */
+  left: 0;
+  top: 0;
+  width: 100%; /* Ancho completo */
+  height: 100%; /* Altura completa */
+  overflow: auto; /* Habilita el scroll */
+  background-color: rgb(0,0,0); /* Color de fondo negro */
+  background-color: rgba(0,0,0,0.4); /* Fondo con opacidad */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* Centrado vertical y horizontal */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 30%; /* Ancho del modal */
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Estilo para marcar en rojo cuando el stock es 0 */
+.low-stock {
+  background-color: red;
+}

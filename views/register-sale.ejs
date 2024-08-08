@@ -6,6 +6,8 @@
   <title>Registrar Venta</title>
   <link rel="stylesheet" href="/css/register-sale.css">
   <link rel="stylesheet" href="/css/modaleliminacion.css">
+  <link rel="stylesheet" href="/css/modalventa.css">
+  <link rel="stylesheet" href="/css/modalnostock.css">
 </head>
 <body>
   <nav>
@@ -44,6 +46,7 @@
           <th>Fecha</th>
           <th>Hora</th>
           <th>Precio</th>
+          <th>Acciones</th> 
         </tr>
       </thead>
       <tbody id="sales-table-body">
@@ -54,6 +57,9 @@
             <td><%= new Date(sale.date).toLocaleDateString() %></td>
             <td><%= new Date(sale.date).toLocaleTimeString() %></td>
             <td><%= sale.medication.price %></td>
+            <td>
+                <button class="delete-sale-button" data-id="<%= sale.id %>">Eliminar</button>
+            </td>
           </tr>
         <% }) %>
       </tbody>
@@ -95,7 +101,24 @@
       <p>¡Venta registrada exitosamente!</p>
     </div>
   </div>
-
+<!-- Modal de confirmación de eliminación -->
+<div id="delete-confirmation-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Confirmar Eliminación</h2>
+      <p>¿Estás seguro de que deseas eliminar esta venta?</p>
+      <button id="confirm-delete-button">Eliminar</button>
+      <button id="cancel-delete-button">Cancelar</button>
+    </div>
+  </div>
+  <!-- Modal de error -->
+  <div id="error-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p id="error-message"></p>
+    </div>
+  </div>
+  
   <script src="/js/register-sale.js"></script>
 </body>
 </html>
