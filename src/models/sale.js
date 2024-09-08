@@ -28,6 +28,10 @@ Sale.init({
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
   },
+  total: { // Nuevo campo
+    type: DataTypes.FLOAT, // Cambia el tipo si es necesario
+    allowNull: false
+  },
   medicationhistoryId: {
     type: DataTypes.INTEGER,
     allowNull: true,

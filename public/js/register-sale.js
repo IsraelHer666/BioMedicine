@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
-
     markLowStockRows(); // Llamar a la función al cargar la página
 
     form.addEventListener('submit', async (event) => {
@@ -57,10 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${new Date(sale.date).toLocaleDateString()}</td>
                     <td>${new Date(sale.date).toLocaleTimeString()}</td>
                     <td>${medication.price}</td>
+                    <td>${sale.quantity * medication.price}</td>
                     <td><button class="delete-sale-button" data-id="${sale.id}">Eliminar</button></td>
                 `;
                 salesTableBody.appendChild(newRow);
-
+                
                 // Actualizar la tabla de stock
                 updateStockTable(medication);
 
@@ -76,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error:', error);
         }
     });
+    
+
 
     // Actualizar el stock en la tabla
     const updateStockTable = (updatedMedication) => {
@@ -100,8 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saleToDelete = event.target;
             deleteConfirmationModal.style.display = 'block';
         }
-    });
-
+    }); 
     // Confirmar eliminación de venta
     confirmDeleteButton.addEventListener('click', async () => {
         if (saleToDelete) {
@@ -122,6 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Elimina la fila de la tabla
                     row.remove();
                     deleteConfirmationModal.style.display = 'none';
+                     // Recargar la página después de 1 segundo
+                     setTimeout(() => location.reload(), 100); 
                 } else {
                     const error = await response.json(); // Captura el mensaje de error del servidor
                     document.getElementById('error-message').textContent = error.message;
@@ -132,6 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+   
+
 
     // Cancelar eliminación de venta
     cancelDeleteButton.addEventListener('click', () => {

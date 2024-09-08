@@ -19,13 +19,16 @@
     max-width: 90%;
     position: relative;
   }
-  
+  #error-modal .modal-content #error-message {
+    font-size:1.2em;
+  }
   .modal .close {
     position: absolute;
     top: 10px;
     right: 10px;
     font-size: 24px;
     cursor: pointer;
+    color: #fe5151;
   }
   
   .modal h2 {

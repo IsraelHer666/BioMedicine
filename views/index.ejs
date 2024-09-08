@@ -13,7 +13,6 @@
         </div>
         <nav>
             <ul>
-                <li><a href="#inicio">Inicio</a></li>
                 <li><a href="#dashboard">Dashboard</a></li>
                 <li><a href="/admin">Inventario</a></li>
                 <li><a href="/register-sale">Registrar Venta</a></li>
@@ -23,27 +22,46 @@
     </header>
 
     <section id="inicio">
-        <h1>Resumen de Ventas Diarias - <span id="current-date"></span></h1>
+        <h1>Resumen de Ventas - <span id="current-date"></span></h1>
         <div class="summary-container">
             <div class="summary-card">
                 <h2>Total de Ventas</h2>
-                <p id="total-sales">$0.00</p>
+                <p id="total-sales">$<%= totalVentas.toFixed(2) %></p>
             </div>
             <div class="summary-card">
-                <h2>Número de Transacciones</h2>
-                <p id="transactions">0</p>
+                <h2>Total Vendido</h2>
+                <p id="sales"><%= totalVendidos %> medicamentos</p>
             </div>
             <div class="summary-card">
-                <h2>Productos Vendidos</h2>
-                <p id="products-sold">0</p>
+                <h2>Medicamentos en Inventario</h2>
+                <p id="products-sold"><%= medicamentosEnInventario %></p>
             </div>
             <div class="summary-card">
-                <h2>Promedio por Transacción</h2>
-                <p id="avg-per-transaction">$0.00</p>
+                <h2>Medicamentos con Stock Bajo</h2>
+                <p id="low-stock">
+                    <% if (medicamentosBajoStock.length > 0) { %>
+                        <ul>
+                        <% medicamentosBajoStock.forEach(med => { %>
+                            <li><%= med.name %> (Stock: <%= med.stock %>)</li>
+                        <% }) %>
+                        </ul>
+                    <% } else { %>
+                        <span>Todo en orden</span>
+                    <% } %>
+                </p>
             </div>
-        </div>  |
+        </div>  
     </section>
-
+    <div id="lowStockModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeLowStockModal">&times;</span>
+            <h2>¡Alerta de Bajo Stock!</h2>
+            <p>Los siguientes medicamentos estan proximos a agotarse:</p>
+            <ul id="lowStockList"></ul>
+        </div>
+    </div>
+    
     <script src="/js/hour.js"></script>
+    <script src="/js/summary.js"></script>
 </body>
 </html>

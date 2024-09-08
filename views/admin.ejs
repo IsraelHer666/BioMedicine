@@ -9,15 +9,24 @@
   <link rel="stylesheet" href="/css/modalactualizacion.css"> <!-- Asegúrate de incluir los estilos del modal de actualización -->
 </head>
 <body>
-  <nav>
-    <ul>
-      <li><a href="/">Inicio</a></li>
-      <li><a href="/admin">Administrador</a></li>
-    </ul>
-  </nav>
+  <header>
+    <div class="Title">
+        <h1>BioMedicine</h1>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/register-sale">Registrar Venta</a></li>
+            <li><a href="/admin">Inventario</a></li>
+        </ul>
+    </nav>
+</header>
+
 
   <section id="admin">
-    <h1>Inventario de Medicamentos</h1>
+    <div class="subtitles">
+      <h2>Inventario de Medicamentos</h2>
+    </div>
     <table id="medications-table">
       <thead>
         <tr>
@@ -26,6 +35,8 @@
           <th>Descripción</th>
           <th>Fecha de Caducidad</th>
           <th>Precio</th>
+          <th>Porcentaje de Ganancia</th> <!-- Nueva columna -->
+          <th>Precio al Público</th> <!-- Nueva columna -->
           <th>Lote</th>
           <th>Stock Disponible</th>
           <th>Acciones</th>
@@ -39,10 +50,12 @@
               <td><%= medication.id %></td>
               <td><input type="text" name="name" value="<%= medication.name %>" required></td>
               <td><input type="text" name="description" value="<%= medication.description %>" required></td>
-              <td><input type="date" name="expirationDate" value="<%= new Date(medication.expirationDate).toISOString().split('T')[0] %>" required></td>
-              <td><input type="number" name="price" step="0.01" value="<%= medication.price %>" required></td>
-              <td><input type="text" name="lot" value="<%= medication.lot %>" required></td>
-              <td><input type="number" name="stock" value="<%= medication.stock %>" required></td>
+              <td><input id="expirationDate" type="date" name="expirationDate" value="<%= new Date(medication.expirationDate).toISOString().split('T')[0] %>" required></td>
+              <td><input id="price" type="number" name="price" step="0.01" value="<%= medication.price %>" required></td>
+              <td id="profittd"><input id="profitMargin" type="number" name="profitMargin" step="0.01" value="<%= medication.profitMargin || 0 %>" required></td>
+              <td><input id="publicPrice" type="number" name="publicPrice" step="0.01" value="<%= medication.publicPrice %>" readonly></td> <!-- Precio al público -->
+              <td><input id="lot" type="text" name="lot" value="<%= medication.lot %>" required></td>
+              <td><input id="stock" type="number" name="stock" value="<%= medication.stock %>" required></td>
               <td>
                 <button type="submit" class="update-button">Actualizar</button>
                 <button class="delete-button" data-id="<%= medication.id %>">Eliminar</button>
@@ -53,7 +66,9 @@
       </tbody>
     </table>
 
-    <h2>Agregar Nuevo Medicamento</h2>
+    <div class="subtitles">
+      <h2>Agregar Nuevo Medicamento</h2>
+    </div>
     <form id="add-medication-form" action="/api/medications" method="POST">
       <label for="name">Nombre:</label>
       <input type="text" id="name" name="name" required>
@@ -66,6 +81,9 @@
       
       <label for="price">Precio:</label>
       <input type="number" id="price" name="price" step="0.01" required>
+      
+      <label for="profitMargin">Porcentaje de Ganancia:</label> <!-- Nueva columna -->
+      <input type="number" id="profitMargin" name="profitMargin" step="0.01" required>
       
       <label for="lot">Lote:</label>
       <input type="text" id="lot" name="lot" required>

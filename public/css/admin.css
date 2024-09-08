@@ -3,39 +3,69 @@ body {
     margin: 0;
     padding: 0;
   }
-  
-  nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    background-color: #333;
-    overflow: hidden;
+  *{
+    --NavBarBackground:#333;
+    --FontColor1:#dddd;
+    --HoverColor:#661;
   }
-  
-  nav ul li {
-    float: left;
-  }
-  
-  nav ul li a {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-  }
-  
-  nav ul li a:hover {
-    background-color: #111;
-  }
-  
+header{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background-color:var(--NavBarBackground);
+}
+header .Title h1{
+color: var(--FontColor1);
+}
+
+nav {
+  display: flex;
+  justify-content: right;
+  overflow: hidden;
+}
+
+nav ul {
+  display: flex;
+  align-items: center;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li {
+  float: right;
+}
+
+nav ul li a {
+  display: block;
+  color:var(--FontColor1);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+nav ul li a:hover {
+  color:var(--HoverColor);
+  text-decoration: underline;
+}
   #admin {
-    padding: 20px;
+    padding:2%;
   }
+ .subtitles{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size:1vw;
+ }
   
   table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+  }
+  table td input{
+    border: none;
+    text-align: center;
   }
   
   table, th, td {
@@ -43,15 +73,87 @@ body {
   }
   
   th, td {
-    padding: 10px;
-    text-align: left;
+    padding:2px 5px;
+    text-align: center;
   }
   
   th {
-    background-color: #f2f2f2;
+    background-color: #4a4a4a;
+    color: #ffffff;
+    text-align: center;
   }
-  
+  table button{
+      border: none;
+      background-color: #87b3c6;
+      color: #ffffff;
+  }
+  table button:hover{
+    background-color: #82ed99;
+    cursor: pointer;
+  }
+    
   form {
-    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-width:30vw;
+    margin: 2em auto;
+    padding: 1em;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
   
+  form label {
+    display: block;
+    margin-bottom: 0.5em;
+    color: #333;
+  }
+  
+  form input, form select, form button {
+    width: 30%;
+    padding: 0.5em;
+    margin-bottom: 1em;
+    border: 1px solid #9a9898;
+    border-radius: 4px;
+  }
+  
+  form button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  form button:hover {
+    background-color: #218838;
+  }
+  
+  #expirationDate{
+    width:7vw;
+  }
+  #price{
+    width:4vw;
+  }
+  #profitMargin{
+    text-align: center;
+    width:3vw;
+  }
+  #profittd{
+    margin-top:10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+  }
+  #publicPrice{
+    width: 5vw;
+    background-color: #82ed99;
+  }
+  #lot{
+    width:3vw;
+  }
+  #stock{
+    width:3vw;
+  }

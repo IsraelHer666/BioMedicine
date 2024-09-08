@@ -1,32 +1,56 @@
+*{
+  --NavBarBackground:#333;
+  --FontColor1:#dddd;
+  --HoverColor:#661;
+  --Total:#f1f13ec0;
+}
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
   }
-  
-  nav {
-    background-color: #333;
-    color: #fff;
-    padding: 1em;
-  }
-  
-  nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    justify-content: space-around;
-  }
-  
-  nav ul li {
-    margin: 0 1em;
-  }
-  
-  nav ul li a {
-    color: #fff;
-    text-decoration: none;
-  }
+header{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background-color:var(--NavBarBackground);
+}
+header .Title h1{
+color: var(--FontColor1);
+}
+
+nav {
+  display: flex;
+  justify-content: right;
+  overflow: hidden;
+}
+
+nav ul {
+  display: flex;
+  align-items: center;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li {
+  float: right;
+}
+
+nav ul li a {
+  display: block;
+  color:var(--FontColor1);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+nav ul li a:hover {
+  color:var(--HoverColor);
+  text-decoration: underline;
+}
+
   
   h1, h2 {
     text-align: center;
@@ -67,7 +91,7 @@ body {
     background-color: #218838;
   }
   
-  #sales-history {
+  #sales-history,#medication-stock{
     max-width: 800px;
     margin: 2em auto;
     padding: 1em;
@@ -88,9 +112,14 @@ body {
   }
   
   #sales-history table th {
+    text-align: center;
     background-color: #333;
     color: #fff;
   }
+  table #total-vendido{
+    background-color:var(--Total);
+  }
+  
   
   /* TABLA DE MEDICAMENTOS STOCK */
   

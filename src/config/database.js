@@ -4,7 +4,7 @@ const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize('Biomedicine', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
-  logging:console.log// Puedes habilitar esto si quieres ver los logs de SQL
+  logging:true// Puedes habilitar esto si quieres ver los logs de SQL
 });
 
 module.exports = sequelize;

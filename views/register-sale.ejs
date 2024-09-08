@@ -10,14 +10,19 @@
   <link rel="stylesheet" href="/css/modalnostock.css">
 </head>
 <body>
-  <nav>
-    <ul>
-      <li><a href="/">Inicio</a></li>
-      <li><a href="/admin">Administrador</a></li>
-      <li><a href="/history">Historial</a></li>
-      <li><a href="/register-sale">Registrar Venta</a></li>
-    </ul>
-  </nav>
+  
+  <header>
+    <div class="Title">
+        <h1>BioMedicine</h1>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/admin">Inventario</a></li>
+            <li><a href="#productos">Dashboard</a></li>
+        </ul>
+    </nav>
+</header>
 
   <section id="register-sale">
     <h1>Registrar Venta</h1>
@@ -45,24 +50,34 @@
           <th>Cantidad</th>
           <th>Fecha</th>
           <th>Hora</th>
-          <th>Precio</th>
-          <th>Acciones</th> 
+          <th>Precio al publico</th>
+          <th>Total Venta</th> <!-- Nueva columna -->
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody id="sales-table-body">
+        <% let totalVendido = 0; %> <!-- Variable para el total vendido -->
         <% sales.forEach(sale => { %>
           <tr>
             <td><%= sale.medication.name %></td>
             <td><%= sale.quantity %></td>
             <td><%= new Date(sale.date).toLocaleDateString() %></td>
             <td><%= new Date(sale.date).toLocaleTimeString() %></td>
-            <td><%= sale.medication.price %></td>
+            <td>$<%= sale.medication.publicPrice %></td> <!-- Usar publicPrice -->
+            <td>$<%= sale.total %></td> <!-- Mostrar el total almacenado en la base de datos -->
             <td>
                 <button class="delete-sale-button" data-id="<%= sale.id %>">Eliminar</button>
             </td>
           </tr>
+          <% totalVendido += sale.quantity * sale.total; %> <!-- Acumulador para total vendido -->
         <% }) %>
       </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="6" style="text-align: right;"><strong>Total Vendido:</strong></td>
+          <td  id="total-vendido">$<%= totalVendido %></td>
+        </tr>
+      </tfoot>  
     </table>
   </section>
 
@@ -73,7 +88,7 @@
         <tr>
           <th>Nombre</th>
           <th>Descripción</th>
-          <th>Fecha de Expiración</th>
+          <th>Fecha de Caducidad</th>
           <th>Precio</th>
           <th>Lote</th>
           <th>Stock</th>
@@ -85,7 +100,7 @@
             <td><%= medication.name %></td>
             <td><%= medication.description %></td>
             <td><%= new Date(medication.expirationDate).toISOString().split('T')[0] %></td>
-            <td><%= medication.price %></td>
+            <td><%= medication.publicPrice %></td>
             <td><%= medication.lot %></td>
             <td><%= medication.stock %></td>
           </tr>
@@ -112,12 +127,12 @@
     </div>
   </div>
   <!-- Modal de error -->
-  <div id="error-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <p id="error-message"></p>
+    <div id="error-modal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <span  class="close">&times;</span>
+        <p id="error-message"></p>
+      </div>
     </div>
-  </div>
   
   <script src="/js/register-sale.js"></script>
 </body>

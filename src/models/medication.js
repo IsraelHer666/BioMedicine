@@ -26,6 +26,16 @@ Medication.init({
     type: DataTypes.FLOAT,
     allowNull: false
   },
+  profitMargin: { // Nuevo campo
+    type: DataTypes.FLOAT,
+    allowNull: true, // Es opcional, puede ser null
+    defaultValue: 0
+  },
+  publicPrice: { // Precio al público calculado
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0
+  },
   lot: {
     type: DataTypes.STRING,
     allowNull: false

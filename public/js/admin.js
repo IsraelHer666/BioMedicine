@@ -1,4 +1,3 @@
-//adding
 document.addEventListener('DOMContentLoaded', () => {
   const deleteButtons = document.querySelectorAll('.delete-button');
   const modal = document.getElementById('deleteModal');
@@ -8,8 +7,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeSpan = document.querySelector('#deleteModal .close');
   const closeUpdateSpan = document.querySelector('#updateModal .close-update');
   const confirmUpdateButton = document.getElementById('confirmUpdateButton');
-  let medicationIdToDelete = null;
+  const medicationForms = document.querySelectorAll('.update-medication-form, #add-medication-form');
+  let medicationIdToDelete = null;  
   let rowToDelete = null;
+  
+  // Calcular margen de ganancia
+  medicationForms.forEach(form => {
+    const priceInput = form.querySelector('[name="price"]');
+    const profitMarginInput = form.querySelector('[name="profitMargin"]');
+    const publicPriceInput = form.querySelector('[name="publicPrice"]');
+
+    // Verificar si los inputs existen antes de agregar los eventos
+    if (priceInput && profitMarginInput && publicPriceInput) {
+      const calculatePublicPrice = () => {
+        const price = parseFloat(priceInput.value) || 0; // Prevenir NaN
+        const profitMargin = parseFloat(profitMarginInput.value) || 0; // Prevenir NaN
+        const publicPrice = price * (1 + (profitMargin / 100));
+        publicPriceInput.value = publicPrice.toFixed(2);
+      };
+
+      priceInput.addEventListener('input', calculatePublicPrice);
+      profitMarginInput.addEventListener('input', calculatePublicPrice);
+
+      // Calcular el precio público inicial si hay valores predeterminados
+      calculatePublicPrice();
+    }
+  });
 
   // Manejo de la eliminación
   deleteButtons.forEach(button => {

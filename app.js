@@ -3,12 +3,13 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const methodOverride = require('method-override');
 const path = require('path');
-const getNextAvailableId = require('./src/utils/getNextAvailableId');
-const getNextAvailableSaleId = require('./src/utils/getNextAvailableSaleId');
 const { v4: uuidv4 } = require('uuid');
 const sequelize = require('./src/config/database');
 const { Medication, Sale } = require('./src/models/associations'); // Importar desde associations.js
 const Medicationhistory = require('./src/models/medicationhistory');
+const { Op } = require('sequelize');
+const getNextAvailableId = require('./src/utils/getNextAvailableId');
+const getNextAvailableSaleId = require('./src/utils/getNextAvailableSaleId');
 const app = express();
 const PORT = 5000;
 
@@ -36,9 +37,43 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Index route
 app.get('/', async (req, res) => {
-  res.render("index");
-});
+  try {
+    // Obtener el total de ventas, total de medicamentos vendidos y medicamentos con bajo stock
+    const totalVentas = await Sale.sum('total');
+    const totalVendidos = await Sale.sum('quantity');
+    const medicamentosEnInventario = await Medication.count();
+    const medicamentosBajoStock = await Medication.findAll({
+      where: {
+        stock: { [Op.lte]: 2 } // Uso correcto del operador Op.lte
+      }
+    });
 
+    res.render('index', {
+      totalVentas: totalVentas || 0,
+      totalVendidos: totalVendidos || 0,
+      medicamentosEnInventario,
+      medicamentosBajoStock
+    });
+  } catch (err) {
+    console.error('Error al cargar los datos del index:', err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+app.get('/api/low-stock', async (req, res) => {
+  try {
+      const lowStockMedications = await Medication.findAll({
+          where: {
+              stock: {
+                  [Op.lte]: 2
+              }
+          }
+      });
+      res.json({ lowStockMedications });
+  } catch (err) {
+    console.error('Error al obtener medicamentos con bajo stock:', err.message);
+      res.status(500).json({ message: 'Error al obtener medicamentos con bajo stock', error: err.message });
+  }
+});
 // Admin route
 app.get('/admin', async (req, res) => {
   try {
@@ -99,7 +134,8 @@ app.post('/api/register-sale', async (req, res) => {
       if (medication.stock >= quantity) {
         // Obtener el siguiente ID disponible para la venta
         const nextSaleId = await getNextAvailableSaleId();
-        const sale = await Sale.create({ id: nextSaleId, medicationId, quantity });
+        const total = medication.publicPrice * quantity; // Calcula el total
+        const sale = await Sale.create({ id: nextSaleId, medicationId, quantity, total });
         
         // Actualizar el stock
         medication.stock -= quantity;
@@ -111,7 +147,8 @@ app.post('/api/register-sale', async (req, res) => {
           sale: {
             medication: await medication.get(),
             quantity,
-            date: sale.date
+            date: sale.date,
+            total: sale.total // Incluye el total en la respuesta
           },
           medication: await medication.get()
         });
@@ -172,18 +209,22 @@ app.delete('/api/sales/:id', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-//Añadir medicamentos
+// Añadir medicamentos
 app.post('/api/medications', async (req, res) => {
-  const { name, description, expirationDate, price, lot, stock } = req.body;
+  const { name, description, expirationDate, price, profitMargin, lot, stock } = req.body;
   
   // Validación de campos
-  if (!name || !description || !expirationDate || !price || !lot || !stock) {
+  if (!name || !description || !expirationDate || !price || !profitMargin || !lot || !stock) {
     return res.status(400).json({ message: 'Todos los campos son requeridos' });
   }
-  
+
   try {
     const nextId = await getNextAvailableId();
-    await Medication.create({ id: nextId, name, description, expirationDate, price, lot, stock });
+    
+    // Calcular el precio al público
+    const publicPrice = price * (1 + profitMargin / 100);
+    
+    await Medication.create({ id: nextId, name, description, expirationDate, price, profitMargin, publicPrice, lot, stock });
     res.redirect('/admin');
   } catch (err) {
     console.error('Error al agregar medicamento:', err.errors ? err.errors.map(e => e.message).join(', ') : err.message);
@@ -230,7 +271,7 @@ app.delete('/api/medications/:id', async (req, res) => {
 
 // Update medication
 app.put('/api/medications/:id', async (req, res) => {
-  const { name, description, expirationDate, price, lot, stock } = req.body;
+  const { name, description, expirationDate, price, profitMargin, lot, stock } = req.body;
   try {
     const medication = await Medication.findByPk(req.params.id);
     if (medication) {
@@ -238,6 +279,11 @@ app.put('/api/medications/:id', async (req, res) => {
       medication.description = description;
       medication.expirationDate = expirationDate;
       medication.price = price;
+      medication.profitMargin = profitMargin;
+      
+      // Calcular el precio al público
+      medication.publicPrice = price * (1 + profitMargin / 100);
+      
       medication.lot = lot;
       medication.stock = stock;
       await medication.save();
@@ -249,7 +295,7 @@ app.put('/api/medications/:id', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-// Sale route
+// Sale route 
 app.post('/api/register-sale', async (req, res) => {
   const { medicationId, quantity } = req.body;
   try {
