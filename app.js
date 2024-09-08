@@ -7,7 +7,10 @@ const { v4: uuidv4 } = require('uuid');
 const sequelize = require('./src/config/database');
 const { Medication, Sale } = require('./src/models/associations'); // Importar desde associations.js
 const Medicationhistory = require('./src/models/medicationhistory');
+const User = require('./src/models/user');
 const { Op } = require('sequelize');
+const session = require('express-session');
+const bcrypt = require('bcryptjs');
 const getNextAvailableId = require('./src/utils/getNextAvailableId');
 const getNextAvailableSaleId = require('./src/utils/getNextAvailableSaleId');
 const app = express();
@@ -22,6 +25,23 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(methodOverride('_method'));
+// Middleware de sesión
+
+app.use(session({
+  secret: 'secret-key', // Cambia esto por una clave segura
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Asegúrate de cambiar esto a true si usas HTTPS
+}));
+// Middleware para compartir datos de sesión con las vistas
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+app.use((req, res, next) => {
+  console.log('Session:', req.session);
+  next();
+});
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -34,9 +54,100 @@ app.use(express.static(path.join(__dirname, 'public')));
   // .then(() => console.log('Database & tables recreated!'))
   // .catch(err => console.error('Error syncing with the database:', err));
 
+// Ruta para mostrar el formulario de registro
+app.get('/register', ensureAuthenticated,ensureAdmin, (req, res) => {
+  res.render('register', { error: null });
+});
+app.post('/register', async (req, res) => {
+  const { username, password, role } = req.body;
 
+  if (!username || !password || !role) {
+    return res.render('register', { error: 'Todos los campos son obligatorios' });
+  }
+
+  // Validación adicional para el rol si es necesario
+  if (role !== 'admin' && role !== 'user') {
+    return res.render('register', { error: 'Rol no válido' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res.render('register', { error: 'El nombre de usuario ya está en uso' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await User.create({ username, password: hashedPassword, role });
+
+    res.redirect('/login');
+  } catch (err) {
+    console.error('Error al registrar el usuario:', err);
+    res.render('register', { error: 'Ocurrió un error al registrar la cuenta' });
+  }
+});
+
+
+function ensureAuthenticated(req, res, next) {
+  if (req.session.username) {
+    return next();
+  }
+  res.redirect('/login'); // Redirige al login si no está autenticado
+}
+
+function ensureAdmin(req, res, next) {
+  console.log('Role in session during admin access:', req.session.role); // Verifica el valor aquí
+  if (req.session.role === 'admin') {
+    return next();
+  }
+  res.redirect('/login'); // Redirige a la página de inicio si no es admin
+}
+
+  // Ruta para mostrar la vista de login
+app.get('/login', (req, res) => {
+  res.render('login', { error: null });
+});
+// Ruta para procesar el login
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { username } });
+
+    if (!user) {
+      return res.render('login', { error: 'Usuario o contraseña incorrectos' });
+    }
+
+    // Comparar la contraseña ingresada con la almacenada en la base de datos
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) {
+      return res.render('login', { error: 'Usuario o contraseña incorrectos' });
+    }
+
+    // Guardar el usuario en la sesión
+    req.session.username = username;
+    req.session.role = user.role; // Asegúrate de que 'role' esté definido en el modelo de usuario
+    console.log("Role stored in session:", req.session.role); // Verifica el valor aquí
+    // Redirigir al dashboard o admin basado en el rol
+    if (user.role === 'admin') {
+      console.log("eres ", user.role)
+      res.redirect('/admin');
+    } else {
+      res.redirect('/indexuser'); // Redirigir a la página de inicio o a donde corresponda para usuarios normales
+    }
+  } catch (err) {
+    console.error('Error al iniciar sesión:', err);
+    res.render('login', { error: 'Ocurrió un error al iniciar sesión' });
+  }
+});
+
+  // Ruta para cerrar sesión
+app.get('/logout', (req, res) => {
+  req.session.destroy(); // Destruir la sesión
+  res.redirect('/login'); // Redirigir al login
+});
 // Index route
-app.get('/', async (req, res) => {
+app.get('/', ensureAuthenticated, ensureAdmin, async (req, res) => {
   try {
     // Obtener el total de ventas, total de medicamentos vendidos y medicamentos con bajo stock
     const totalVentas = await Sale.sum('total');
@@ -49,6 +160,29 @@ app.get('/', async (req, res) => {
     });
 
     res.render('index', {
+      totalVentas: totalVentas || 0,
+      totalVendidos: totalVendidos || 0,
+      medicamentosEnInventario,
+      medicamentosBajoStock
+    });
+  } catch (err) {
+    console.error('Error al cargar los datos del index:', err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+app.get("/indexuser",ensureAuthenticated, async (req,res)=>{
+  try {
+    // Obtener el total de ventas, total de medicamentos vendidos y medicamentos con bajo stock
+    const totalVentas = await Sale.sum('total');
+    const totalVendidos = await Sale.sum('quantity');
+    const medicamentosEnInventario = await Medication.count();
+    const medicamentosBajoStock = await Medication.findAll({
+      where: {
+        stock: { [Op.lte]: 2 } // Uso correcto del operador Op.lte
+      }
+    });
+
+    res.render('indexuser', {
       totalVentas: totalVentas || 0,
       totalVendidos: totalVendidos || 0,
       medicamentosEnInventario,
@@ -75,10 +209,11 @@ app.get('/api/low-stock', async (req, res) => {
   }
 });
 // Admin route
-app.get('/admin', async (req, res) => {
+app.get('/admin', ensureAuthenticated, ensureAdmin, async (req, res) => {
+  console.log('Admin route accessed');
   try {
     const medications = await Medication.findAll();
-    res.render('admin', { medications });
+    res.render('admin', { medications, session: req.session });
   } catch (err) {
     console.error('Error fetching medications:', err.message);
     res.status(500).json({ message: err.message });
@@ -109,9 +244,8 @@ app.get('/history', async (req, res) => {
     res.status(500).send('Error al cargar historial');
   }
 });
-
 // Route to display the register sale view
-app.get('/register-sale', async (req, res) => {
+app.get('/register-sale',ensureAuthenticated,ensureAdmin, async (req, res) => {
   try {
     const medications = await Medication.findAll();
     const sales = await Sale.findAll({
@@ -120,7 +254,21 @@ app.get('/register-sale', async (req, res) => {
         as: 'medication'
       }
     });
-    res.render('register-sale', { medications, sales });
+    res.render('register-sale', { medications, sales,session:req.session });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+app.get('/register-sale-user',ensureAuthenticated, async (req, res) => {
+  try {
+    const medications = await Medication.findAll();
+    const sales = await Sale.findAll({
+      include: {
+        model: Medication,
+        as: 'medication'
+      }
+    });
+    res.render('register-sale-user', { medications, sales,session:req.session });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -231,7 +379,6 @@ app.post('/api/medications', async (req, res) => {
     res.status(400).json({ message: err.errors ? err.errors.map(e => e.message).join(', ') : err.message });
   }
 });
-
 // Delete medication route
 app.delete('/api/medications/:id', async (req, res) => {
   try {
@@ -268,7 +415,6 @@ app.delete('/api/medications/:id', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 // Update medication
 app.put('/api/medications/:id', async (req, res) => {
   const { name, description, expirationDate, price, profitMargin, lot, stock } = req.body;
